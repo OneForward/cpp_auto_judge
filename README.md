@@ -11,7 +11,7 @@ python包: pandas
 
 以批改实验6为例子
 
-1. 需要在根目录提供学生姓名和学号，目前要求保存为sid_names.txt(每行学号<TAB>姓名)和student_ids.txt(每行学号)
+1. 需要在根目录提供学生姓名和学号，目前要求保存为sid_names.txt(每行学号\<TAB\>姓名)和student_ids.txt(每行学号)
 2. 新建文件夹junk/lab06，在此处解压所有学生的作业到单独的文件夹里面
 3. 在src/config.json中分别修改实验号、问题号、每个问题的分数
 4. 新建lab06/test_case，在此处添加若干测例和答案
