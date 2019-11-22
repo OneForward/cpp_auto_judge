@@ -1,0 +1,10 @@
+Perfect number in [100,10000]:496 8128
+Perfect number in [5,10000]:6 28 496 8128
+Perfect number in [2,29]:6 28
+Perfect number in [3,500]:6 28 496
+Perfect number in [30,500]:496
+Perfect number in [100,10000]:496 8128
+Perfect number in [5,10000]:6 28 496 8128
+Perfect number in [2,29]:6 28
+Perfect number in [3,500]:6 28 496
+Perfect number in [30,500]:496

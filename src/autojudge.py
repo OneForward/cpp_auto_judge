@@ -4,13 +4,32 @@ import subprocess, psutil , time
 
 class AutoJudgeSingle(object):
     """
+    批改一份代码, 包括编译、测试、打分与评论错误等操作
+
+    Parameters
+    ----------
         code_dir : 代码所在文件夹
         ouput_dir: 编译、测试、打分过程产生的文件的保存路径
+        finput   : 输入测例的文件路径 
+        fanswer  : 测例答案的文件路径
 
-        
-        对代码 code 在 finput 的若干个测例下，对照 fanswer, 给出得分
-        一次只改一份代码
+    Methods
+    ---------
+        self.compile()           : 编译代码
+        self.running_test_case() : 测试测例
+        self.check_answers()     : 检查测例输出是否为正确答案
 
+    Properties
+    ---------
+        self.build_failed : 是否编译成功
+        self.TLE          : 运行超时的测例列表
+        self.WA           : 答案错误的测例列表
+        self.time         : 运行测例的时间列表
+        self.memory       : 运行测例的内存列表
+
+    TODO
+    ---------
+        提供更多的编译接口
     """
     def __init__(self, code_dir, ouput_dir, finput, fanswer, is_forced=False, sids_forced=None):
         super(AutoJudgeSingle, self).__init__()
@@ -137,22 +156,31 @@ class AutoJudgeSingle(object):
 
 
 class AutoJudge(object):
-    """docstring for AutoJudge
-        code_dirs: 列表，每个文件夹是一个等待评测的 cpp 文件夹
-        
-
-        pattern: re.Pattern 类型，用于提取学号，如果没有提供则默认使用文件夹名称
-        pkl_path: pathlib.Path 类型，以文件形式加载或保存AutoJudge对象
-        
-
-        一次性测试多个同学, 同一个问题
-
     """
-    def __init__(self, code_dirs, ouput_dir, finput, fanswer, pattern=None, is_forced=False, sids_forced=None):
+    同时批改一个问题下的多份代码, 包括编译、测试、打分与评论错误等操作
+
+    Parameters
+    ----------
+        code_dirs: 列表，每个文件夹是一个等待评测的 cpp 文件夹
+        work_dir : 工作文件夹, 在此处保存编译文件(debug/*.exe)、测试结果(.cache/下)
+        finput   : 该问题输入测例的文件路径 
+        fanswer  : 该问题测例答案的文件路径
+        pattern  : re.Pattern 类型，用于提取学号，如果没有提供则默认使用文件夹名称
+
+    Methods
+    ----------
+        self.process(fullscore=100, p=0.05): 
+            fullscore 是该问题的满分, p=0.05 是指一个测例分数默认占 5%
+            完成所有代码的编译、测试、打分操作
+        self.load(pkl_path):
+        self.save(pkl_path):
+                pkl_path 是 pathlib.Path 类型，以文件形式加载或保存AutoJudge对象
+    """
+    def __init__(self, code_dirs, work_dir , finput, fanswer, pattern=None, is_forced=False, sids_forced=None):
         super(AutoJudge, self).__init__()
         
         self.code_dirs  = code_dirs
-        self.auto_judge = AutoJudgeSingle(None, ouput_dir, finput, fanswer, is_forced, sids_forced)
+        self.auto_judge = AutoJudgeSingle(None, work_dir , finput, fanswer, is_forced, sids_forced)
 
         code_names   = [code_dir.name for code_dir in code_dirs]
         if pattern is not None:

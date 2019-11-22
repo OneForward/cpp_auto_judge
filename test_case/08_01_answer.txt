@@ -1,0 +1,10 @@
+Count=4
+Count=25
+Count=0
+Count=0
+Count=7
+Count=2
+Count=15
+Count=25
+Count=4
+Count=22
