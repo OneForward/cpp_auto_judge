@@ -4,8 +4,9 @@
 
 #### 环境要求
 
-python包: pandas
-环境中有gcc编译器
+python包: pandas, pyunpack
+
+环境中有mingw-w64版本g++编译器(提供了编码支持)
 
 #### 使用方法:
 
