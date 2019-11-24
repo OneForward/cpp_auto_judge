@@ -23,6 +23,7 @@ codes     = lab / 'codes'
 reports   = lab / 'reports'
 debug     = lab / 'debug'
 cache     = lab / '.cache'
+pkl_dir   = lab / '.cache' / 'pkls'
 
 test_case     = root / 'test_case'
 new_test_case = lab  / 'test_case'
@@ -34,11 +35,13 @@ sids        = list(sid_snames.keys())
 logger_ids  = [ '拷贝', '编译', '测试', '打分']
 default_work_dir = root
 
+SEPARATORS  = ['=========\n']
+
 异常json     = lab / '异常.json' 
 if is_forced: 
     异常json = lab / '异常_forced.json'
 
-for p in [lab, codes, reports, debug, junk_new, new_test_case]:
+for p in [lab, codes, reports, debug, cache, pkl_dir, junk_new, new_test_case]:
     if not p.exists():
         p.mkdir()
         
