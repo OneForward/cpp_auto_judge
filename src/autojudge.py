@@ -19,9 +19,10 @@ class AutoJudge(object):
         self.compile()           : 编译代码
         self.running_test_case() : 测试测例
         self.check_answers()     : 检查测例输出是否为正确答案
-        self.process(fullscore=100, p=0.05): 
-            fullscore 是该问题的满分, p=0.05 是指一个测例分数默认占 5%
-            完成所有代码的编译、测试、打分操作
+        self.process(self, fullscore=100, per_case=.05, per_build=.25):
+            完成所有代码的编译、测试、打分操作。默认分数配比为 编译 25% 代码 25% 测例 50%
+            fullscore 是该问题的满分, per_case=.05 是指一个测例分数默认占 5%
+            per_build=.25 是指编译错误扣分 25%
         self.load(pkl_path):
         self.save(pkl_path):
                 pkl_path 是 pathlib.Path 类型，以文件形式加载或保存AutoJudge对象
@@ -33,6 +34,7 @@ class AutoJudge(object):
         self.WA           : 答案错误的测例列表
         self.time         : 运行测例的时间列表
         self.memory       : 运行测例的内存列表
+
 
     TODO
     ---------
@@ -186,7 +188,8 @@ class AutoJudge(object):
             self.STATE = 'FINISH'
                 
 
-    def __wrong2str(self, wrong_cases):
+    def __list2str(self, wrong_cases):
+        # 将列表变为可读性好的格式，如[1,2,3,4, 10] -> 1-4、10
         W = sorted([x+1 for x in wrong_cases])
         start, end, out = -1, -1, []
         for i, x in enumerate(W):
@@ -213,8 +216,8 @@ class AutoJudge(object):
 
         s = []
         if self.TLE:
-            s.append(f'{prob_name}测例{self.__wrong2str(self.TLE)}: 运行异常')
+            s.append(f'{prob_name}测例{self.__list2str(self.TLE)}: 运行异常')
         if self.WA  :
-            s.append(f'{prob_name}测例{self.__wrong2str(self.WA)}: 运行错误')
+            s.append(f'{prob_name}测例{self.__list2str(self.WA)}: 运行错误')
         return '\n'.join(s)
 
