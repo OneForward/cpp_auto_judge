@@ -5,22 +5,29 @@
 在`src/autojudge.py`中提供了方便移植的AutoJudge类。
 
 ```python
-class AutoJudgeSingle(object):
+class AutoJudge(object):
     """
     批改一份代码, 包括编译、测试、打分与评论错误等操作
 
     Parameters
     ----------
-        code_dir : 代码所在文件夹
-        ouput_dir: 编译、测试、打分过程产生的文件的保存路径
-        finput   : 输入测例的文件路径 
-        fanswer  : 测例答案的文件路径
+        code_dir   : 代码所在文件夹
+        ouput_dir  : 编译、测试、打分过程产生的文件的保存路径
+        finput     : 输入测例的文件路径
+        fanswer    : 测例答案的文件路径
+        separators : 输入测例的分隔符，默认以换行符分隔
 
     Methods
     ---------
         self.compile()           : 编译代码
         self.running_test_case() : 测试测例
         self.check_answers()     : 检查测例输出是否为正确答案
+        self.process(fullscore=100, p=0.05): 
+            fullscore 是该问题的满分, p=0.05 是指一个测例分数默认占 5%
+            完成所有代码的编译、测试、打分操作
+        self.load(pkl_path):
+        self.save(pkl_path):
+                pkl_path 是 pathlib.Path 类型，以文件形式加载或保存AutoJudge对象
 
     Properties
     ---------
@@ -34,28 +41,6 @@ class AutoJudgeSingle(object):
     ---------
         提供更多的编译接口
     """
-class AutoJudge(object):
-    """
-    同时批改一个问题下的多份代码, 包括编译、测试、打分与评论错误等操作
-
-    Parameters
-    ----------
-        code_dirs: 列表，每个文件夹是一个等待评测的 cpp 文件夹
-        work_dir : 工作文件夹, 在此处保存编译文件(debug/*.exe)、测试结果(.cache/下)
-        finput   : 该问题输入测例的文件路径 
-        fanswer  : 该问题测例答案的文件路径
-        pattern  : re.Pattern 类型，用于提取学号，如果没有提供则默认使用文件夹名称
-
-    Methods
-    ----------
-        self.process(fullscore=100, p=0.05): 
-            fullscore 是该问题的满分, p=0.05 是指一个测例分数默认占 5%
-            完成所有代码的编译、测试、打分操作
-        self.load(pkl_path):
-        self.save(pkl_path):
-                pkl_path 是 pathlib.Path 类型，以文件形式加载或保存AutoJudge对象
-    """
-    
 ```
 
 #### 环境要求
