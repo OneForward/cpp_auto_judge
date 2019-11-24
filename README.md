@@ -22,6 +22,7 @@ class AutoJudge(object):
         self.compile()           : 编译代码
         self.running_test_case() : 测试测例
         self.check_answers()     : 检查测例输出是否为正确答案
+        self.errors(prob_name)   : 评论错误情况
         self.process(self, fullscore=100, per_case=.05, per_build=.25):
             完成所有代码的编译、测试、打分操作。默认分数配比为 编译 25% 代码 25% 测例 50%
             fullscore 是该问题的满分, per_case=.05 是指一个测例分数默认占 5%
@@ -37,7 +38,7 @@ class AutoJudge(object):
         self.WA           : 答案错误的测例列表
         self.time         : 运行测例的时间列表
         self.memory       : 运行测例的内存列表
-
+		self.score        : 代码分数
 
     TODO
     ---------
