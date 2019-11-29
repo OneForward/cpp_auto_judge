@@ -6,7 +6,12 @@ from utils import *
 SID_RE      = re.compile(r'\d{12}')
 
 def release_excel():
-    
+
+
+    fbuild_error = lab / '编译失败.txt'
+    sbuild_error = '\n'.join(set(open(fbuild_error).read().splitlines()))
+    open(fbuild_error, 'w').write(sbuild_error)
+
     # STEP 1: 输出分数与测评
     PS = problems_str     = [f'问题{int(prob)}({SCORES[prob]}分)' for prob in PROBLEMS]
     PM = problems_str_map = dict(zip(PROBLEMS, problems_str))
@@ -118,9 +123,9 @@ def auto_judge():
             auto_judge.process(fullscore=SCORES[prob])
             auto_judge.save(auto_judge_pkl)
 
-
 if __name__ == '__main__':
     auto_judge()
     release_excel()
     # recommend_cpp()
     # release_zip()
+    # ajs = {p.stem: AutoJudge.load_pkl(p) for p in pkl_dir.iterdir()}

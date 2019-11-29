@@ -1,4 +1,4 @@
-import os, pickle, re 
+import os, pickle, re, chardet
 import os.path as osp 
 import subprocess, psutil , time 
 
@@ -49,7 +49,8 @@ class AutoJudge(object):
         self.debug        = ouput_dir / 'debug'
         self.cache        = ouput_dir / '.cache'
         self.test_case    = ouput_dir / '.cache' / 'test_case'
-        
+        self.fbuild_error = ouput_dir / '编译失败.txt'
+
         for p in [self.cache, self.test_case, self.debug]:
             if not p.exists():
                 p.mkdir()
@@ -83,9 +84,9 @@ class AutoJudge(object):
             cpp = code_dir / 'main.cpp'
 
         # 覆写 该份 code 的相关数据
-        self.fdir         = code_dir
         self.fname        = code_dir.name
         self.cpp          = cpp 
+        self.cpps         = cpps
         self.TLE          = []
         self.WA           = []
         self.time         = [0] * len(self.cases)
@@ -107,13 +108,27 @@ class AutoJudge(object):
     def save(self, pkl_path):
         pickle.dump(self, open(pkl_path, 'wb'))
 
-    def compile(self):
+    def __re_encode(self, cpp):
+        encoding = chardet.detect(open(cpp, 'rb').read())['encoding']        
+        if 'utf' not in encoding.lower() or 'ascii' == encoding: return
+        print(cpp, 'encoding = ', encoding )
 
-        exec_gbk = f"g++ -std=c++14 -w -I{self.fdir} -finput-charset=GBK -fexec-charset=GBK {self.cpp} -o {self.debug / self.fname}"
-        exec_gbk_utf = f"g++ -std=c++14 -w -I{self.fdir} -fexec-charset=GBK {self.cpp} -o {self.debug / self.fname}"
+        cpp_content = open(cpp, 'r', encoding='utf-8', errors='ignore').read()
+        with open(cpp, 'w', errors='ignore') as f:
+            f.write(cpp_content)
+
+    def compile(self):
+        for cpp in self.cpps:
+            self.__re_encode(self.cpp)
+        #  2>> "{self.fbuild_error}"
+        cpps = ' '.join(f'"{cpp}"' for cpp in self.cpps)
+        exec_gbk = f'g++ -std=c++14 -w {cpps} -o "{self.exe}"'
         
-        if  os.system(exec_gbk) and os.system(exec_gbk_utf):
+        if  os.system(exec_gbk):
             self.build_failed = True
+            print(exec_gbk) 
+            print(f"{self.fname} <------------- build_failed") 
+            open(self.fbuild_error, 'a').write('\n' + self.fname)
 
     def running_test_case(self):
         
@@ -132,10 +147,10 @@ class AutoJudge(object):
                 p.wait(timeout=1)
 
                 self.time[i]   = (time.time() - st ) * 1000
-                self.output[i] = ILLEGAL_CHARACTERS_RE.sub('', open(self.cache / 'out.txt').read())
+                self.output[i] = ILLEGAL_CHARACTERS_RE.sub('', open(self.cache / 'out.txt', errors='ignore').read())
                 
-            except UnicodeDecodeError:
-                print(f'{self.fname}对测例{i+1}\tOut.txt can not read\t{self.cases[i]}')
+            # except UnicodeDecodeError:
+            #     print(f'{self.fname}对测例{i+1}\tOut.txt can not read\t{self.cases[i]}')
                 
             except subprocess.TimeoutExpired:
                 p.kill()   
@@ -162,32 +177,31 @@ class AutoJudge(object):
             
 
     def process(self, fullscore=100, per_case=.05, per_build=.25):
-       
+        
         if self.STATE in ['INIT', 'BUILD FAILED']:
 
             self.compile()
             
             if self.build_failed: 
                 self.STATE = 'BUILD FAILED'
-                self.score = 0
             else:
-                if self.STATE == 'BUILD FAILED':
-                    self.STATE = 'REBUILD PASS'
-                else:
-                    self.STATE = 'BUILD PASS'
+                self.STATE = 'BUILD PASS'
 
-        if self.STATE in ['BUILD PASS', 'REBUILD PASS']:
+
+        if self.STATE in ['BUILD PASS']:
 
             self.running_test_case()
             self.check_answers()
-            
-            self.score = fullscore * (1 - len(self.TLE + self.WA) * per_case)
-
-            if self.STATE == 'REBUILD PASS':
-                self.score -= fullscore * per_build
-            
             self.STATE = 'FINISH'
-                
+        
+        self.score = fullscore
+
+        if self.fname in open(self.fbuild_error).read():
+            self.score -= fullscore * per_build
+        
+        self.score -= fullscore * len(self.TLE + self.WA) * per_case
+        if self.STATE  != 'FINISH':
+            self.score -= fullscore * len(self.cases) * per_case
 
     def __list2str(self, wrong_cases):
         # 将列表变为可读性好的格式，如[1,2,3,4, 10] -> 1-4、10
@@ -211,14 +225,13 @@ class AutoJudge(object):
         return '、'.join(outstr)
 
     def errors(self, prob_name) :
-        
-        if self.STATE == 'BUILD FAILED':
-            return f'{prob_name}：编译错误'
-
         s = []
+        if self.fname in open(self.fbuild_error).read():
+            # 只要曾经编译错误就算(因为我会帮忙修改)
+            s.append(f'{prob_name}：编译错误')
         if self.TLE:
             s.append(f'{prob_name}测例{self.__list2str(self.TLE)}: 运行异常')
         if self.WA  :
-            s.append(f'{prob_name}测例{self.__list2str(self.WA)}: 运行错误')
+            s.append(f'{prob_name}测例{self.__list2str(self.WA)}: 答案错误')
         return '\n'.join(s)
 

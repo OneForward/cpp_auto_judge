@@ -25,7 +25,6 @@ def check_zip(path):
             os.remove(f)
         check_zip(f)
 
-@chdir_wrap()
 def move_redundant(over_written=False):
     # if over_written is False, only update new found archive
 

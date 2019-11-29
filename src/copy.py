@@ -15,26 +15,24 @@ def _copy_cpps(error_sids=None):
         # 使用 OrderedDict 使得 cpp_folders 保持了 cpps 的顺序
         cpp_folders = list(OrderedDict.fromkeys((cpp.parent for cpp in cpps)))
 
+        if len(cpps) == len(PROBLEMS):
+            for i, f in enumerate(cpps):
+                fid_dir = codes / f'{sid}_{PROBLEMS[i]}'
+                if not fid_dir.exists():
+                    fid_dir.mkdir()
+                f2 = fid_dir / f'{fid_dir.name}.cpp'
+                shutil.copy2(f, f2)
 
-        if len(cpp_folders) == len(problems):
+        elif len(cpp_folders) == len(PROBLEMS):
             for i, cpp_folder in enumerate(cpp_folders):
                 # fid_dir is the destination dir
-                fid_dir = codes / f'{sid}_{labid}_{problems[i]}'
+                fid_dir = codes / f'{sid}_{PROBLEMS[i]}'
                 if not fid_dir.exists():
                     fid_dir.mkdir()
 
                 for f in  chain(cpp_folder.glob('*.cpp'), cpp_folder.glob('*.h')):
                     f2 = fid_dir / f.name 
                     shutil.copy2(f, f2)
-
-        elif len(cpps) == len(problems):
-            # print('直接使用cpp顺序拷贝')
-            for i, f in enumerate(cpps):
-                fid_dir = codes / f'{sid}_{labid}_{problems[i]}'
-                if not fid_dir.exists():
-                    fid_dir.mkdir()
-                f2 = fid_dir / f.name 
-                shutil.copy2(f, f2)
 
         else:
             print(f"error: {sid} 没有全部提交或者提交格式错误 <-----------")
@@ -64,11 +62,11 @@ def _copy_docs():
             D[sid] += 1
 
         fext = osp.splitext(osp.basename(f))[1]
-        prob = problems[D[sid]]
+        prob = PROBLEMS[D[sid]]
         if sids_counter[sid] == 1:
-            f2 = reports / f'{sid}_{labid}{fext}' 
+            f2 = reports / f'{sid}{fext}' 
         else:
-            f2 = reports / f'{sid}_{labid}_{prob}{fext}'
+            f2 = reports / f'{sid}_{prob}{fext}'
         shutil.copy2(f, f2)
 
 def _copy_test_case():
@@ -76,7 +74,6 @@ def _copy_test_case():
         shutil.copy2(test_case / f'{labid}_{prob}.txt',        new_test_case)
         shutil.copy2(test_case / f'{labid}_{prob}_answer.txt', new_test_case)
 
-@chdir_wrap()
 def copy_files():
     
     error_sids = []
