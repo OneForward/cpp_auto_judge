@@ -25,7 +25,7 @@ def check_zip(path):
             os.remove(f)
         check_zip(f)
 
-def move_redundant(over_written=False):
+def move_redundant():
     # if over_written is False, only update new found archive
 
     origin    = junk_path
@@ -59,14 +59,10 @@ def move_redundant(over_written=False):
         target_dir = new_dir / sid
 
         if target_dir.exists():
-            # 是否覆写
-            if not over_written: continue
-            # 否则清空target dir
-            shutil.rmtree(target_dir)
+            continue
         
-        target_dir.mkdir()
         if f.is_dir():
-            shutil.copytree(f, target_dir)
+            shutil.copytree(str(f), str(target_dir))
         else:
             p = subprocess.Popen(f'bc x -aoa -target:auto "{f}" "{target_dir}"', stdout=open(work_dir / '日志.解压.txt', 'a'))
             p.wait() # 等待子进程完成

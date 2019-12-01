@@ -1,4 +1,4 @@
-import pickle, re
+import pickle, re, time
 from autojudge import AutoJudge
 from itertools import chain 
 from utils import *
@@ -52,11 +52,11 @@ def release_excel():
     SCORES_COLS = problems_str + ['报告(20分)'] # 需要被计算的列名
     df['总分']    = df[SCORES_COLS].sum(axis=1)
 
-    df.to_excel (cache / '扣分说明.xlsx')
+    df.to_excel (cache / f'扣分说明_{time.strftime("%Y_%m_%d_%H_%M_%S")}.xlsx' )
     df.to_pickle(cache / '扣分说明.pkl')
 
     # STEP 2: 输出同学们代码的输出
-    # time.strftime("%Y_%m_%d_%H_%M_%S")
+    
     writer = pd.ExcelWriter(cache / "测例输出.xlsx", engine='openpyxl')
     for prob in PROBLEMS:
         dfs_out[prob].to_excel(writer, f'问题{int(prob)}', index=True)

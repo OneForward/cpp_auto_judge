@@ -69,7 +69,7 @@ class AutoJudge(object):
         self.fcases = [self.test_case / f'{finput.stem}_case_{i+1}{finput.suffix}'  
                                             for i, case in enumerate(cases)]
         for i, fcase in enumerate(self.fcases):
-            open(fcase, 'w').write(cases[i])
+            open(fcase, 'w').write(cases[i] + '\n')
 
         self.reset(code_dir)
 
@@ -170,8 +170,8 @@ class AutoJudge(object):
 
     def check_answers(self):
 
-        answers = open(self.fanswer, encoding='utf-8').readlines()
-        for i, ans in enumerate(answers):
+        self.answers = open(self.fanswer, encoding='utf-8').readlines()
+        for i, ans in enumerate(self.answers):
             if i not in self.TLE and not self.__is_answer(ans.split(), self.output[i]):
                 self.WA.append(i)
             
